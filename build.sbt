@@ -33,9 +33,16 @@ lazy val publishSettings = Seq(
   mappings in makeSite ++= Seq((resourceDirectory in Compile).value / "ciris.svg" -> "images/ciris.svg")
 )
 
-lazy val cirisVersion = "0.11.0"
+lazy val cirisVersion = "0.12.0"
+
+lazy val http4sVersion = "0.19.0-M4"
+
+lazy val pureConfigVersion = "0.9.2"
+
+lazy val refinedVersion = "0.9.2"
 
 lazy val dependencySettings = Seq(
+  resolvers += Resolver.bintrayRepo("ovotech", "maven"),
   libraryDependencies ++= Seq(
     "is.cir" %% "ciris-cats",
     "is.cir" %% "ciris-cats-effect",
@@ -45,5 +52,21 @@ lazy val dependencySettings = Seq(
     "is.cir" %% "ciris-refined",
     "is.cir" %% "ciris-spire",
     "is.cir" %% "ciris-squants"
-  ).map(_ % cirisVersion)
+  ).map(_ % cirisVersion) ++ Seq(
+    "org.http4s" %% "http4s-dsl",
+    "org.http4s" %% "http4s-blaze-server"
+  ).map(_ % http4sVersion) ++ Seq(
+    "eu.timepit" %% "refined",
+    "eu.timepit" %% "refined-cats",
+    "eu.timepit" %% "refined-pureconfig"
+  ).map(_% refinedVersion) ++ Seq(
+    "com.github.pureconfig" %% "pureconfig",
+    "com.github.pureconfig" %% "pureconfig-cats-effect"
+  ).map(_ % pureConfigVersion) ++ Seq(
+    "com.ovoenergy" %% "ciris-kubernetes" % "0.10",
+    "com.beachape" %% "enumeratum" % "1.5.13",
+    "com.typesafe" % "config" % "1.3.2"
+  ) ++ Seq(
+    "org.typelevel" %% "kittens" % "1.1.0"
+  )
 )

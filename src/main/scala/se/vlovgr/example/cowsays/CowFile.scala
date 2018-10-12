@@ -1,0 +1,51 @@
+package se.vlovgr.example.cowsays
+
+sealed trait CowFile
+
+case object BeavisZen extends CowFile
+case object Blowfish extends CowFile
+case object Bong extends CowFile
+case object BudFrogs extends CowFile
+case object Bunny extends CowFile
+case object Cheese extends CowFile
+case object Cower extends CowFile
+case object Daemon extends CowFile
+case object Default extends CowFile
+case object Dragon extends CowFile
+case object DragonAndCow extends CowFile
+case object Elephant extends CowFile
+case object ElephantInSnake extends CowFile
+case object Eyes extends CowFile
+case object FlamingSheep extends CowFile
+case object Ghostbusters extends CowFile
+case object HeadIn extends CowFile
+case object Hellokitty extends CowFile
+case object Kiss extends CowFile
+case object Kitty extends CowFile
+case object Koala extends CowFile
+case object Kosh extends CowFile
+case object LukeKoala extends CowFile
+case object Meow extends CowFile
+case object Milk extends CowFile
+case object Moofasa extends CowFile
+case object Moose extends CowFile
+case object Mutilated extends CowFile
+case object Ren extends CowFile
+case object Satanic extends CowFile
+case object Sheep extends CowFile
+case object Skeleton extends CowFile
+case object Small extends CowFile
+case object Sodomized extends CowFile
+case object Stegosaurus extends CowFile
+case object Stimpy extends CowFile
+case object Supermilker extends CowFile
+case object Surgery extends CowFile
+case object Telebears extends CowFile
+case object ThreeEyes extends CowFile
+case object Turkey extends CowFile
+case object Turtle extends CowFile
+case object Tux extends CowFile
+case object Udder extends CowFile
+case object Vader extends CowFile
+case object VaderKoala extends CowFile
+case object Www extends CowFile
