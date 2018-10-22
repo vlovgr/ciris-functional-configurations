@@ -1,3 +1,7 @@
 package se.vlovgr.example.cowsays
 
-final case class CowTongue(value: String)
+import eu.timepit.refined.types.string.NonEmptyString
+
+final case class CowTongue(value: NonEmptyString) {
+  def stringValue: String = value.value
+}

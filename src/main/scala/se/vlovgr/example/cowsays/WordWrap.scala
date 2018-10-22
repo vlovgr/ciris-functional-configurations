@@ -1,6 +1,11 @@
 package se.vlovgr.example.cowsays
 
-sealed trait WordWrap
+import eu.timepit.refined.types.numeric.PosInt
 
-case object NoMaxWidth extends WordWrap
-final case class MaxWidth(value: Int) extends WordWrap
+sealed abstract class WordWrap
+
+object WordWrap {
+  case object NoMaxWidth extends WordWrap
+
+  final case class MaxWidth(value: PosInt) extends WordWrap
+}
