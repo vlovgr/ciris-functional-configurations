@@ -91,8 +91,8 @@ package object http {
     import dsl._
 
     BlazeServerBuilder[F]
-      .bindHttp(config.http.port, config.http.host)
-      .withIdleTimeout(config.http.idleTimeout)
+      .bindHttp(config.http.port.value, config.http.host.value)
+      .withIdleTimeout(config.http.idleTimeout.value)
       .withHttpApp {
         HttpRoutes
           .of[F] {
