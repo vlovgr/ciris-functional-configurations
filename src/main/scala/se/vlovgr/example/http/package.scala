@@ -12,9 +12,11 @@ import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.impl.OptionalValidatingQueryParamDecoderMatcher
 import org.http4s.server.blaze.BlazeServerBuilder
+import se.vlovgr.example.config.Config
 import se.vlovgr.example.cowsays.CowEyes.Wired
 import se.vlovgr.example.cowsays.WordWrap.{MaxWidth, NoMaxWidth}
 import se.vlovgr.example.cowsays._
+import scala.concurrent.duration._
 
 package object http {
   def refTypeQueryParamDecoder[F[_, _], T, P](errorMessage: String)(
@@ -83,14 +85,15 @@ package object http {
   def withDefaults(config: CowsayConfig): CowsayConfig =
     config.withTongue("U").withEyes(Wired)
 
-  def startHttpApi[F[_]](
+  def startHttpApi[F[_]](config: Config)(
     implicit F: ConcurrentEffect[F]
   ): F[ExitCode] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
     BlazeServerBuilder[F]
-      .bindHttp(9000, "0.0.0.0")
+      .bindHttp(config.http.port, config.http.host)
+      .withIdleTimeout(config.http.idleTimeout)
       .withHttpApp {
         HttpRoutes
           .of[F] {
