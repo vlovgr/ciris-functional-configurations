@@ -16,7 +16,6 @@ import se.vlovgr.example.config.Config
 import se.vlovgr.example.cowsays.CowEyes.Wired
 import se.vlovgr.example.cowsays.WordWrap.{MaxWidth, NoMaxWidth}
 import se.vlovgr.example.cowsays._
-import scala.concurrent.duration._
 
 package object http {
   def refTypeQueryParamDecoder[F[_, _], T, P](errorMessage: String)(

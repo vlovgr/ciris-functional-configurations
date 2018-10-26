@@ -1,23 +1,21 @@
 package se.vlovgr.example.config
 
-import com.typesafe.config.{ConfigFactory, Config => LightbendConfig}
+import cats.effect.IO
+import pureconfig.module.catseffect.loadConfigF
 
 import scala.concurrent.duration._
 
-final case class Config(config: LightbendConfig) {
-  object http {
-    def host: String =
-      config.getString("se.vlovgr.example.http.host")
+final case class HttpConfig(
+  host: String,
+  port: Int,
+  idleTimeout: FiniteDuration
+)
 
-    def port: Int =
-      config.getInt("se.vlovgr.example.http.port")
-
-    def idleTimeout: FiniteDuration =
-      config.getInt("se.vlovgr.example.http.idle-timeout-seconds").seconds
-  }
-}
+final case class Config(
+  http: HttpConfig
+)
 
 object Config {
-  def load(): Config =
-    Config(ConfigFactory.load())
+  def load: IO[Config] =
+    loadConfigF[IO, Config]("se.vlovgr.example")
 }

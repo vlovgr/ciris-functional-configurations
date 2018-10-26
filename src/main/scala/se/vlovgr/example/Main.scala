@@ -6,5 +6,5 @@ import se.vlovgr.example.http.startHttpApi
 
 object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
-    startHttpApi[IO](Config.load())
+    Config.load.flatMap(startHttpApi[IO])
 }
