@@ -1,11 +1,12 @@
 package se.vlovgr.example.config
 
-import cats.effect.IO
+import ciris._
+import ciris.enumeratum._
+import ciris.refined._
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.pureconfig._
+import eu.timepit.refined.auto._
 import eu.timepit.refined.string.IPv4
 import eu.timepit.refined.types.net.UserPortNumber
-import pureconfig.module.catseffect.loadConfigF
 
 import scala.concurrent.duration._
 
@@ -20,6 +21,18 @@ final case class Config(
 )
 
 object Config {
-  def load: IO[Config] =
-    loadConfigF[IO, Config]("se.vlovgr.example")
+  def load: Either[ConfigErrors, Config] =
+    loadConfig(
+      env[Option[String Refined IPv4]]("HTTP_HOST"),
+      env[Option[UserPortNumber]]("HTTP_PORT"),
+      env[Option[FiniteDuration]]("HTTP_IDLE_TIMEOUT")
+    ) { (host, port, idleTimeout) =>
+      Config(
+        http = HttpConfig(
+          host = host.getOrElse("0.0.0.0"),
+          port = port.getOrElse(9000),
+          idleTimeout = idleTimeout.getOrElse(20.seconds)
+        )
+      )
+    }.result
 }
