@@ -17,6 +17,7 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.cats.refTypeShow
 import eu.timepit.refined.string.IPv4
 import eu.timepit.refined.types.net.UserPortNumber
+import eu.timepit.refined.types.string.NonEmptyString
 import se.vlovgr.example.config.AppEnv.{Production, Testing}
 
 import scala.concurrent.duration._
@@ -28,8 +29,14 @@ final case class HttpConfig(
   apiKey: Secret[ApiKey]
 )
 
+final case class DatabaseConfig(
+  username: NonEmptyString,
+  password: Secret[DatabasePassword]
+)
+
 final case class Config(
-  http: HttpConfig
+  http: HttpConfig,
+  database: DatabaseConfig
 )
 
 sealed abstract class AppEnv extends EnumEntry
@@ -51,25 +58,61 @@ object Config {
     semi.showPretty
   }
 
+  def httpConfigWith(
+    environment: AppEnv,
+    secret: SecretInNamespace[IO]
+  ) = {
+    val kubernetesApiKey =
+      secret[Secret[ApiKey]]("api-key")
+
+    loadConfig(
+      environment match {
+        case Testing =>
+          envF[IO, Secret[ApiKey]]("API_KEY")
+            .orElse(kubernetesApiKey)
+        case Production =>
+          kubernetesApiKey
+      }
+    ) { apiKey =>
+      HttpConfig(
+        host = "0.0.0.0",
+        port = 9000,
+        idleTimeout = environment match {
+          case Testing    => 10.seconds
+          case Production => 20.seconds
+        },
+        apiKey = apiKey
+      )
+    }
+  }
+
+  def databaseConfigWith(secret: SecretInNamespace[IO]) =
+    loadConfig(
+      secret[Secret[DatabasePassword]]("database-password")
+    ) { password =>
+      DatabaseConfig(
+        username = "cowsay",
+        password = password
+      )
+    }
+
+  def configWith(secret: SecretInNamespace[IO]) =
+    withValue(envF[IO, AppEnv]("APP_ENV")) { environment =>
+      loadConfig(
+        httpConfigWith(environment, secret),
+        databaseConfigWith(secret)
+      ) { (http, database) =>
+        Config(
+          http = http,
+          database = database
+        )
+      }
+    }
+
   def load: IO[Config] =
     for {
       apiClient <- defaultApiClient[IO]
       secret = secretInNamespace[IO]("secrets", apiClient)
-      config <- loadConfig(
-        envF[IO, AppEnv]("APP_ENV"),
-        envF[IO, Secret[ApiKey]]("API_KEY").orElse(secret("api-key"))
-      ) { (environment, apiKey) =>
-        Config(
-          http = HttpConfig(
-            host = "0.0.0.0",
-            port = 9000,
-            idleTimeout = environment match {
-              case Testing    => 10.seconds
-              case Production => 20.seconds
-            },
-            apiKey = apiKey
-          )
-        )
-      }.orRaiseThrowable
+      config <- configWith(secret).orRaiseThrowable
     } yield config
 }
